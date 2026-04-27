@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Furqan Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0c10;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        /* Glassmorphism Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 280px;
+            background: rgba(15, 25, 35, 0.85);
+            backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 2rem 1rem;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ef4444, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0.75rem 1.2rem;
+            margin: 0.5rem 0;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #cbd5e6;
+        }
+        .nav-item i {
+            width: 24px;
+            color: #ef4444;
+        }
+        .nav-item.active, .nav-item:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border-left: 3px solid #3b82f6;
+        }
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        /* Card styling */
+        .glass-card {
+            background: rgba(15, 25, 35, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+        .glass-card:hover {
+            border-color: rgba(59,130,246,0.6);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid #ef4444;
+            display: inline-block;
+            padding-bottom: 0.3rem;
+        }
+        .form-control {
+            background: rgba(10, 12, 16, 0.8);
+            border: 1px solid rgba(239,68,68,0.5);
+            border-radius: 16px;
+            padding: 0.7rem 1rem;
+            color: white;
+            width: 100%;
+            margin-top: 0.3rem;
+            margin-bottom: 1rem;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+        }
+        button, .btn {
+            background: linear-gradient(135deg, #dc2626, #2563eb);
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.02);
+        }
+        .delete-btn {
+            background: rgba(220,38,38,0.8);
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(239,68,68,0.3);
+        }
+        .badge {
+            background: rgba(59,130,246,0.2);
+            padding: 0.2rem 0.6rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 1000;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1100;
+                background: #ef4444;
+                border-radius: 50%;
+                width: 45px;
+                height: 45px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+        }
+        .menu-toggle {
+            display: none;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-toggle" id="menuToggle">
+    <i class="fas fa-bars"></i>
+</div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">⚡ Admin Portal</div>
+    <div class="nav-item active" data-tab="home-tab">
+        <i class="fas fa-home"></i> <span>Dashboard / Home</span>
+    </div>
+    <div class="nav-item" data-tab="about-tab">
+        <i class="fas fa-user"></i> <span>About</span>
+    </div>
+    <div class="nav-item" data-tab="skills-tab">
+        <i class="fas fa-code"></i> <span>Skills</span>
+    </div>
+    <div class="nav-item" data-tab="experience-tab">
+        <i class="fas fa-briefcase"></i> <span>Experience</span>
+    </div>
+    <div class="nav-item" data-tab="education-tab">
+        <i class="fas fa-graduation-cap"></i> <span>Education</span>
+    </div>
+    <div class="nav-item" data-tab="projects-tab">
+        <i class="fas fa-project-diagram"></i> <span>Projects</span>
+    </div>
+    <div class="nav-item" data-tab="contacts-tab">
+        <i class="fas fa-envelope"></i> <span>Messages</span>
+    </div>
+    <div style="margin-top: 2rem; text-align: center;">
+        <a href="/admin/logout" class="btn" style="background: #4b5563;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
+</div>
+
+<div class="main-content" id="mainContent">
+    <!-- Home Section -->
+    <div id="home-tab" class="tab-content active-tab">
+        <div class="glass-card">
+            <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> Dashboard / Hero Section</h2>
+            {% for item in data %}
+                {% if item.section == 'home' %}
+                <form method="POST" action="/admin/update">
+                    <input type="hidden" name="section" value="home">
+                    <label>Title</label>
+                    <input type="text" name="content" value="{{ item.content.title }}" class="form-control" required>
+                    <label>Tagline</label>
+                    <input type="text" name="tagline" value="{{ item.content.tagline }}" class="form-control" required>
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" rows="3">{{ item.content.description }}</textarea>
+                    <button type="submit"><i class="fas fa-save"></i> Save Home</button>
+                </form>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div id="about-tab" class="tab-content" style="display:none;">
+        <div class="glass-card">
+            <h2 class="section-title"><i class="fas fa-user-circle"></i> About Me</h2>
+            {% for item in data %}
+                {% if item.section == 'about' %}
+                <form method="POST" action="/admin/update">
+                    <input type="hidden" name="section" value="about">
+                    <label>Who I Am (paragraph)</label>
+                    <textarea name="content" class="form-control" rows="4">{{ item.content.who }}</textarea>
+                    <label>Date of Birth</label>
+                    <input type="text" name="dob" value="{{ item.content.personal.dob }}" class="form-control">
+                    <label>Nationality</label>
+                    <input type="text" name="nationality" value="{{ item.content.personal.nationality }}" class="form-control">
+                    <label>Languages</label>
+                    <input type="text" name="languages" value="{{ item.content.personal.languages }}" class="form-control">
+                    <label>Interests</label>
+                    <input type="text" name="interests" value="{{ item.content.personal.interests }}" class="form-control">
+                    <button type="submit">Update About</button>
+                </form>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Skills Section -->
+    <div id="skills-tab" class="tab-content" style="display:none;">
+        <div class="glass-card">
+            <h2 class="section-title"><i class="fas fa-cogs"></i> Skills Management</h2>
+            <div class="flex-between">
+                <form method="POST" action="/admin/add_skill" style="display:flex; gap:1rem; width:100%;">
+                    <input type="text" name="skill" placeholder="e.g., TypeScript" class="form-control" required>
+                    <button type="submit">+ Add Skill</button>
+                </form>
+            </div>
+            <ul style="margin-top: 1.5rem;">
+                {% for item in data %}
+                    {% if item.section == 'skills' %}
+                        {% for skill in item.content %}
+                        <li class="flex-between" style="margin-bottom: 0.5rem;">
+                            <span><i class="fas fa-tag"></i> {{ skill }}</span>
+                            <a href="/admin/delete_skill/{{ loop.index0 }}" class="delete-btn btn" onclick="return confirm('Delete this skill?')">Delete</a>
+                        </li>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Experience Section -->
+    <div id="experience-tab" class="tab-content" style="display:none;">
+        <div class="glass-card">
+            <h2 class="section-title"><i class="fas fa-briefcase"></i> Work Experience</h2>
+            <form method="POST" action="/admin/add_experience" class="grid-2">
+                <input type="text" name="title" placeholder="Job Title" class="form-control" required>
+                <input type="text" name="company" placeholder="Company / Duration" class="form-control" required>
+                <textarea name="desc" placeholder="Description" class="form-control" rows="2" style="grid-column: span 2;" required></textarea>
+                <button type="submit" style="grid-column: span 2;">+ Add Experience</button>
+            </form>
+            <hr style="margin: 1.5rem 0; border-color: #333;">
+            {% for item in data %}
+                {% if item.section == 'experience' %}
+                    {% for exp in item.content %}
+                    <div class="flex-between" style="border-bottom:1px solid #2d3748; padding: 0.8rem 0;">
+                        <div>
+                            <strong>{{ exp.title }}</strong><br>
+                            <small>{{ exp.company }}</small><br>
+                            <span class="badge">{{ exp.desc|truncate(80) }}</span>
+                        </div>
+                        <a href="/admin/delete_experience/{{ loop.index0 }}" class="delete-btn btn" onclick="return confirm('Delete this entry?')">Delete</a>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Education Section -->
+    <div id="education-tab" class="tab-content" style="display:none;">
+        <div class="glass-card">
+            <h2 class="section-title"><i class="fas fa-graduation-cap"></i> Education</h2>
+            <form method="POST" action="/admin/add_education" class="grid-2">
+                <input type="text" name="degree" placeholder="Degree" class="form-control" required>
+                <input type="text" name="institute" placeholder="Institute" class="form-control" required>
+                <button type="submit" style="grid-column: span 2;">+ Add Education</button>
+            </form>
+            <hr>
+            {% for item in data %}
+                {% if item.section == 'education' %}
+                    {% for edu in item.content %}
+                    <div class="flex-between">
+                        <div><strong>{{ edu.degree }}</strong> – {{ edu.institute }}</div>
+                        <a href="/admin/delete_education/{{ loop.index0 }}" class="delete-btn btn" onclick="return confirm('Delete?')">Delete</a>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Projects Section -->
+    <div id="projects-tab" class="tab-content" style="display:none;">
+        <div class="glass-card">
+            <h2 class="section-title"><i class="fas fa-project-diagram"></i> Projects</h2>
+            <form method="POST" action="/admin/add_project" class="grid-2">
+                <input type="text" name="name" placeholder="Project Name" class="form-control" required>
+                <input type="text" name="desc" placeholder="Short description" class="form-control" required>
+                <input type="url" name="link" placeholder="Live Demo URL" class="form-control" style="grid-column: span 2;" required>
+                <button type="submit" style="grid-column: span 2;">+ Add Project</button>
+            </form>
+            <hr>
+            {% for item in data %}
+                {% if item.section == 'projects' %}
+                    {% for proj in item.content %}
+                    <div class="flex-between">
+                        <div><strong>{{ proj.name }}</strong><br> <small>{{ proj.desc }}</small></div>
+                        <a href="/admin/delete_project/{{ loop.index0 }}" class="delete-btn btn" onclick="return confirm('Delete project?')">Delete</a>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Contacts Section -->
+    <div id="contacts-tab" class="tab-content" style="display:none;">
+        <div class="glass-card">
+            <h2 class="section-title"><i class="fas fa-inbox"></i> Contact Messages</h2>
+            {% if contacts %}
+            <table>
+                <thead>
+                    <tr><th>Name</th><th>Email</th><th>Message</th><th>Date</th><th>Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for msg in contacts %}
+                    <tr>
+                        <td>{{ msg.name }}</td>
+                        <td>{{ msg.email }}</td>
+                        <td>{{ msg.message|truncate(50) }}</td>
+                        <td>{{ msg.created_at[:19] if msg.created_at else '' }}</td>
+                        <td><a href="/admin/delete_contact/{{ msg.id }}" class="delete-btn btn" onclick="return confirm('Delete this message?')">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No messages yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Sidebar toggle for mobile
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    if(menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
+    // Tab switching
+    const navItems = document.querySelectorAll('.nav-item');
+    const tabs = document.querySelectorAll('.tab-content');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const tabId = item.getAttribute('data-tab');
+            // hide all tabs
+            tabs.forEach(tab => tab.style.display = 'none');
+            const activeTab = document.getElementById(tabId);
+            if(activeTab) activeTab.style.display = 'block';
+            // update active class
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            // close sidebar on mobile after click
+            if(window.innerWidth < 768) sidebar.classList.remove('open');
+        });
+    });
+    // show first tab by default
+    // already set in HTML home visible
+</script>
+
+</body>
+</html>

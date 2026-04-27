@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Furqan Raza | Dynamic Portfolio</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%238b0000'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='%233b82f6' font-weight='bold'%3EF%3C/text%3E%3C/svg%3E">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* CSS Variables for Dark/Light Mode */
+        :root {
+            --bg-primary: #0a0c10;
+            --text-primary: #f0f3fa;
+            --card-bg: rgba(15, 25, 35, 0.65);
+            --border-color: rgba(239, 68, 68, 0.3);
+            --navbar-bg: rgba(10, 12, 16, 0.85);
+            --glass-border: rgba(239, 68, 68, 0.3);
+            --btn-outline-bg: rgba(255, 255, 255, 0.05);
+            --footer-border: rgba(239, 68, 68, 0.2);
+            --home-text: #ffffff;
+            --home-text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        body.light-mode {
+            --bg-primary: #f8fafc;
+            --text-primary: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --border-color: rgba(59, 130, 246, 0.3);
+            --navbar-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(59, 130, 246, 0.3);
+            --btn-outline-bg: rgba(0, 0, 0, 0.05);
+            --footer-border: rgba(59, 130, 246, 0.2);
+            --home-text: #0f172a;
+            --home-text-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .content-wrapper { position: relative; z-index: 2; backdrop-filter: blur(2px); min-height: 100vh; display: flex; flex-direction: column; }
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100; padding: 1rem 2rem;
+            transition: background 0.3s;
+        }
+        .nav-container { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+        .logo { font-size: 1.7rem; font-weight: 700; background: linear-gradient(135deg, #ef4444, #3b82f6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav-links { display: flex; gap: 2rem; list-style: none; flex-wrap: wrap; }
+        .nav-links a { color: var(--text-primary); text-decoration: none; font-weight: 500; transition: 0.3s; position: relative; padding: 0.4rem 0; cursor: pointer; }
+        .nav-links a:before { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: linear-gradient(90deg, #ef4444, #3b82f6); transition: width 0.3s ease; }
+        .nav-links a:hover:before, .nav-links a.active:before { width: 100%; }
+        .nav-links a:hover, .nav-links a.active { color: #ef4444; text-shadow: 0 0 6px rgba(239,68,68,0.5); }
+        .menu-icon { display: none; font-size: 1.8rem; cursor: pointer; color: var(--text-primary); }
+        .page-container { flex: 1; padding: 100px 2rem 80px; max-width: 1280px; margin: 0 auto; width: 100%; animation: fadeSlide 0.5s ease; }
+        @keyframes fadeSlide { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .section-title { font-size: 2.4rem; font-weight: 700; margin-bottom: 2.5rem; display: inline-block; background: linear-gradient(120deg, #FFF, #fca5a5, #93c5fd); -webkit-background-clip: text; background-clip: text; color: transparent; position: relative; }
+        .section-title:after { content: ''; position: absolute; bottom: -10px; left: 0; width: 70px; height: 4px; background: linear-gradient(90deg, #ef4444, #3b82f6); border-radius: 4px; transition: width 0.3s; }
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            padding: 1.8rem;
+            transition: all 0.4s;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            margin-bottom: 2rem;
+        }
+        .glass-card:hover { transform: translateY(-8px); border-color: rgba(59,130,246,0.7); }
+        .hero-center { display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; min-height: 70vh; }
+        .profile-pic { width: 160px; height: 160px; margin: 0 auto 1.5rem; border-radius: 50%; border: 3px solid #ef4444; box-shadow: 0 0 25px rgba(239,68,68,0.5); overflow: hidden; }
+        .profile-pic img { width: 100%; height: 100%; object-fit: cover; }
+        .hero h1 { font-size: 3.5rem; font-weight: 800; background: linear-gradient(to right, #fff, #fca5a5, #93c5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .hero-description {
+            max-width: 600px;
+            margin: 1rem auto;
+            color: var(--home-text);
+            text-shadow: var(--home-text-shadow);
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        .btn { padding: 0.8rem 2rem; border-radius: 40px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary { background: linear-gradient(135deg, #dc2626, #2563eb); color: white; }
+        .btn-outline { background: var(--btn-outline-bg); border: 1px solid #ef4444; color: var(--text-primary); transition: background 0.3s, color 0.3s; }
+        .skills-grid { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; }
+        .skill-tag { background: rgba(239,68,68,0.15); border: 1px solid rgba(59,130,246,0.5); padding: 0.5rem 1.2rem; border-radius: 60px; transition: all 0.25s; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .info-list li { margin: 0.8rem 0; display: flex; gap: 12px; align-items: center; }
+        .info-list i { width: 28px; color: #ef4444; }
+        .contact-icons { display: flex; justify-content: center; gap: 2.5rem; margin-bottom: 2rem; }
+        .contact-icon { background: var(--card-bg); width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #ef4444; border: 1px solid var(--border-color); transition: all 0.3s; text-decoration: none; }
+        .contact-icon:hover { transform: translateY(-8px); color: #3b82f6; border-color: #3b82f6; }
+        .contact-form { display: flex; flex-direction: column; gap: 1.5rem; }
+        .form-group input, .form-group textarea { background: rgba(10,12,16,0.7); border: 1px solid var(--border-color); border-radius: 16px; padding: 0.9rem 1.2rem; color: var(--text-primary); width: 100%; }
+        .submit-btn { background: linear-gradient(135deg, #dc2626, #2563eb); border: none; padding: 0.8rem 2rem; border-radius: 40px; color: white; cursor: pointer; }
+        footer { text-align: center; padding: 2rem; border-top: 1px solid var(--footer-border); background: transparent; font-size: 0.85rem; margin-top: 2rem; }
+        /* Scroll to Top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #dc2626, #2563eb);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            color: white;
+            z-index: 100;
+        }
+        .scroll-top.show { opacity: 1; visibility: visible; }
+
+        /* Dark/Light Toggle Icon Button (bottom left or right? bottom-right but above scroll-top) */
+        .theme-toggle-icon {
+            position: fixed;
+            bottom: 90px;         /* just above scroll-top button */
+            right: 30px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 101;
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .theme-toggle-icon:hover {
+            transform: scale(1.05);
+            background: rgba(239,68,68,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; width: 100%; flex-direction: column; align-items: center; gap: 1rem; margin-top: 1rem; }
+            .nav-links.active { display: flex; }
+            .menu-icon { display: block; }
+            .two-col { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2.3rem; }
+            .theme-toggle-icon {
+                bottom: auto;
+                top: 20px;
+                right: 20px;
+            }
+            .scroll-top {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="canvas-container"></div>
+<div class="content-wrapper">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">Furqan Raza</div>
+            <div class="menu-icon" id="menu-toggle"><i class="fas fa-bars"></i></div>
+            <ul class="nav-links" id="nav-links">
+                <li><a data-page="home" class="nav-link active">Home</a></li>
+                <li><a data-page="about" class="nav-link">About</a></li>
+                <li><a data-page="skills" class="nav-link">Skills</a></li>
+                <li><a data-page="experience" class="nav-link">Experience</a></li>
+                <li><a data-page="education" class="nav-link">Education</a></li>
+                <li><a data-page="projects" class="nav-link">Projects</a></li>
+                <li><a data-page="contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main id="page-root" class="page-container"></main>
+    <footer>© 2026 Furqan Raza — Backed by Flask Admin | Dynamic Content</footer>
+</div>
+<div class="scroll-top" id="scrollTopBtn"><i class="fas fa-arrow-up"></i></div>
+
+<script>
+    // ---------- DARK/LIGHT MODE TOGGLE (Icon only) ----------
+    let threeScene = null;   // will be set after Three.js initializes
+
+    const themeToggleIcon = document.createElement('div');
+    themeToggleIcon.className = 'theme-toggle-icon';
+    themeToggleIcon.innerHTML = '<i class="fas fa-moon"></i>';
+    document.body.appendChild(themeToggleIcon);
+
+    function applyTheme(isDark) {
+        if (isDark) {
+            document.body.classList.remove('light-mode');
+            localStorage.setItem('theme', 'dark');
+            themeToggleIcon.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            document.body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+            themeToggleIcon.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+        // Change Three.js scene background if scene is ready
+        if (window.updateThreeTheme) {
+            window.updateThreeTheme(!document.body.classList.contains('light-mode'));
+        }
+    }
+
+    themeToggleIcon.addEventListener('click', () => {
+        const isDarkNow = !document.body.classList.contains('light-mode');
+        applyTheme(!isDarkNow);
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        applyTheme(false);
+    } else {
+        applyTheme(true);
+    }
+
+    // ---------- PORTFOLIO DYNAMIC CONTENT ----------
+    let siteData = {};
+    let currentPage = 'home';
+
+    async function loadData() {
+        try {
+            const res = await fetch('/api/data');
+            siteData = await res.json();
+            renderPage(currentPage);
+        } catch(e) {
+            console.error('Failed to load data', e);
+        }
+    }
+
+    function renderPage(page) {
+        currentPage = page;
+        const root = document.getElementById('page-root');
+        if (page === 'home') {
+            root.innerHTML = `<div class="hero-center"><div class="profile-pic"><img src="https://ui-avatars.com/api/?background=2d0000&color=fff&bold=true&size=160&name=Furqan+Raza&length=2&fontsize=0.70" alt="Furqan Raza"></div><h1>${siteData.home.title}</h1><div class="hero-tag"><i class="fas fa-code"></i> ${siteData.home.tagline}</div><p class="hero-description">${siteData.home.description}</p><div style="display:flex;gap:1rem;justify-content:center;"><button class="btn btn-primary" data-nav="projects"><i class="fas fa-arrow-down"></i> View Projects</button><button class="btn btn-outline" data-nav="contact"><i class="fas fa-paper-plane"></i> Contact Me</button></div></div>`;
+        } else if (page === 'about') {
+            root.innerHTML = `<h2 class="section-title">About Me</h2><div class="two-col"><div class="glass-card"><h3><i class="fas fa-user-astronaut"></i> Who I Am</h3><p>${siteData.about.who}</p><div class="skills-grid"><span class="skill-tag">Problem Solving</span><span class="skill-tag">Team Collaboration</span><span class="skill-tag">Communication</span><span class="skill-tag">Debugging Expert</span></div></div><div class="glass-card"><h3><i class="fas fa-id-card"></i> Personal Info</h3><ul class="info-list"><li><i class="fas fa-calendar-alt"></i> DOB: ${siteData.about.personal.dob}</li><li><i class="fas fa-flag"></i> Nationality: ${siteData.about.personal.nationality}</li><li><i class="fas fa-language"></i> Languages: ${siteData.about.personal.languages}</li><li><i class="fas fa-heart"></i> Interests: ${siteData.about.personal.interests}</li></ul></div></div>`;
+        } else if (page === 'skills') {
+            root.innerHTML = `<h2 class="section-title">Technical Arsenal</h2><div class="glass-card"><div class="skills-grid">${siteData.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}</div><div style="margin-top:1rem;"><p><i class="fas fa-chart-line"></i> <strong>Expertise:</strong> Frontend (Expert), Backend (Basic), Full-stack, DB Management</p></div></div>`;
+        } else if (page === 'experience') {
+            let html = `<h2 class="section-title">Work Experience</h2>`;
+            siteData.experience.forEach(exp => {
+                html += `<div class="glass-card"><div class="exp-title">${exp.title}</div><div class="exp-company"><i class="fas fa-briefcase"></i> ${exp.company}</div><div class="exp-desc">${exp.desc}</div></div>`;
+            });
+            root.innerHTML = html;
+        } else if (page === 'education') {
+            let html = `<h2 class="section-title">Academic Journey</h2><div class="glass-card">`;
+            siteData.education.forEach(edu => {
+                html += `<div class="edu-item"><div class="edu-title">${edu.degree}</div><div class="edu-institute"><i class="fas fa-university"></i> ${edu.institute}</div></div>`;
+            });
+            html += `</div>`;
+            root.innerHTML = html;
+        } else if (page === 'projects') {
+            let html = `<h2 class="section-title">Featured Projects</h2><div class="projects-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:2rem;">`;
+            siteData.projects.forEach(proj => {
+                html += `<div class="glass-card project-card"><i class="fas fa-globe" style="font-size:2rem;color:#ef4444;"></i><h3>${proj.name}</h3><p>${proj.desc}</p><a href="${proj.link}" target="_blank" style="color:var(--text-primary);">Live Demo <i class="fas fa-external-link-alt"></i></a></div>`;
+            });
+            html += `</div><div class="glass-card" style="margin-top:2rem;"><h3><i class="fas fa-graduation-cap"></i> Additional Credentials</h3><p>✅ Completed professional Web Development course (React, Node, Supabase). Skilled in full-stack apps, Git/GitHub, performance optimization.</p><div class="skills-grid"><span class="skill-tag">React.js</span><span class="skill-tag">Node.js</span><span class="skill-tag">Supabase</span><span class="skill-tag">Full-stack Apps</span><span class="skill-tag">Vercel</span></div></div>`;
+            root.innerHTML = html;
+        } else if (page === 'contact') {
+            root.innerHTML = `<h2 class="section-title">Get In Touch</h2><div class="glass-card"><div class="contact-icons"><a href="mailto:rfurqan009@gmail.com" class="contact-icon"><i class="fas fa-envelope"></i></a><a href="tel:03195208184" class="contact-icon"><i class="fas fa-phone-alt"></i></a><a href="https://github.com/furqan-dev" class="contact-icon" target="_blank"><i class="fab fa-github"></i></a><a href="https://maps.google.com/?q=Kamalabad+Rawalpindi+Pakistan" class="contact-icon" target="_blank"><i class="fas fa-map-marker-alt"></i></a><a href="#" class="contact-icon" id="collabIcon"><i class="fab fa-linkedin"></i></a></div><h3 style="margin-bottom:1rem; text-align:center;"><i class="fas fa-paper-plane"></i> Send a Message</h3><form id="contactForm" class="contact-form"><div class="form-group"><label>Your Name</label><input type="text" id="formName" required></div><div class="form-group"><label>Email</label><input type="email" id="formEmail" required></div><div class="form-group"><label>Message</label><textarea id="formMsg" rows="4" required></textarea></div><button type="submit" class="submit-btn">Send Message <i class="fas fa-arrow-right"></i></button><div id="formStatus" class="form-message" style="display:none;"></div></form></div>`;
+            const form = document.getElementById('contactForm');
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const fd = new FormData();
+                    fd.append('name', document.getElementById('formName').value);
+                    fd.append('email', document.getElementById('formEmail').value);
+                    fd.append('message', document.getElementById('formMsg').value);
+                    const res = await fetch('/api/contact', { method: 'POST', body: fd });
+                    const status = document.getElementById('formStatus');
+                    if (res.ok) {
+                        status.style.display = 'block';
+                        status.innerHTML = '<i class="fas fa-check"></i> Message sent! I will reply soon.';
+                        status.style.borderLeftColor = '#3b82f6';
+                        form.reset();
+                        setTimeout(() => status.style.display = 'none', 4000);
+                    } else {
+                        status.style.display = 'block';
+                        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error sending message.';
+                        status.style.borderLeftColor = '#ef4444';
+                    }
+                });
+            }
+            const collab = document.getElementById('collabIcon');
+            if (collab) collab.addEventListener('click', (e) => { e.preventDefault(); alert('Connect on LinkedIn: https://www.linkedin.com/in/furqan-dev (demo)'); });
+        }
+        // update active nav
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if (link.dataset.page === page) link.classList.add('active');
+            else link.classList.remove('active');
+        });
+        // re-attach data-nav buttons
+        document.querySelectorAll('[data-nav]').forEach(btn => btn.addEventListener('click', () => renderPage(btn.dataset.nav)));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    loadData();
+
+    // Navigation and mobile menu
+    document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', (e) => {
+        e.preventDefault();
+        renderPage(link.dataset.page);
+        document.getElementById('nav-links')?.classList.remove('active');
+    }));
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+        document.getElementById('nav-links').classList.toggle('active');
+    });
+    const scrollBtn = document.getElementById('scrollTopBtn');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) scrollBtn.classList.add('show');
+        else scrollBtn.classList.remove('show');
+    });
+    scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>
+
+<!-- Three.js Background with dynamic theme support -->
+<script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }</script>
+<script type="module">
+    import * as THREE from 'three';
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    // Initial dark background
+    scene.background = new THREE.Color(0x050b15);
+    scene.fog = new THREE.FogExp2(0x050b15, 0.003);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.5, 12);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+    
+    const ambientLight = new THREE.AmbientLight(0x331122);
+    scene.add(ambientLight);
+    const redLight = new THREE.PointLight(0xef4444, 0.7);
+    redLight.position.set(3, 5, 4);
+    scene.add(redLight);
+    const blueLight = new THREE.PointLight(0x3b82f6, 0.7);
+    blueLight.position.set(-3, 4, 5);
+    scene.add(blueLight);
+    const fillLight = new THREE.DirectionalLight(0xffaa88, 0.5);
+    fillLight.position.set(1, 2, 1);
+    scene.add(fillLight);
+    
+    const geometry = new THREE.TorusKnotGeometry(1.2, 0.3, 200, 32, 3, 4);
+    const material = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x3b82f6, emissiveIntensity: 0.4 });
+    const torusKnot = new THREE.Mesh(geometry, material);
+    scene.add(torusKnot);
+    
+    const particleCount = 1800;
+    const particlesGeometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+        const radius = 4.5 + Math.random() * 2.5;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        posArray[i*3] = radius * Math.sin(phi) * Math.cos(theta);
+        posArray[i*3+1] = radius * Math.sin(phi) * Math.sin(theta);
+        posArray[i*3+2] = radius * Math.cos(phi);
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particleMat = new THREE.PointsMaterial({ color: 0xff6b6b, size: 0.07, transparent: true, blending: THREE.AdditiveBlending });
+    const particleSystem = new THREE.Points(particlesGeometry, particleMat);
+    scene.add(particleSystem);
+    
+    const starGeo = new THREE.BufferGeometry();
+    const starPos = new Float32Array(1000 * 3);
+    for (let i = 0; i < 1000; i++) {
+        starPos[i*3] = (Math.random() - 0.5) * 80;
+        starPos[i*3+1] = (Math.random() - 0.5) * 45;
+        starPos[i*3+2] = (Math.random() - 0.5) * 35 - 20;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+    const starMat = new THREE.PointsMaterial({ color: 0x88aaff, size: 0.05, transparent: true });
+    const starsField = new THREE.Points(starGeo, starMat);
+    scene.add(starsField);
+    
+    const redRing = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.05, 64, 300), new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0xdc2626, emissiveIntensity: 0.7 }));
+    scene.add(redRing);
+    const blueRing = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.04, 64, 300), new THREE.MeshStandardMaterial({ color: 0x3b82f6, emissive: 0x2563eb, emissiveIntensity: 0.6 }));
+    scene.add(blueRing);
+    
+    // Function to update theme (background and fog)
+    window.updateThreeTheme = (isDark) => {
+        if (isDark) {
+            scene.background.setHex(0x050b15);
+            scene.fog.color.setHex(0x050b15);
+        } else {
+            scene.background.setHex(0xe8eaef);
+            scene.fog.color.setHex(0xe8eaef);
+        }
+    };
+    
+    // Set initial theme based on current body class
+    const isBodyDark = !document.body.classList.contains('light-mode');
+    window.updateThreeTheme(isBodyDark);
+    
+    let time = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        time += 0.008;
+        torusKnot.rotation.x += 0.005;
+        torusKnot.rotation.y += 0.008;
+        redRing.rotation.z += 0.007;
+        redRing.rotation.x = Math.sin(time * 0.5) * 0.2;
+        blueRing.rotation.x = Math.cos(time * 0.4) * 0.2;
+        blueRing.rotation.z += 0.005;
+        particleSystem.rotation.y += 0.0005;
+        starsField.rotation.y -= 0.0002;
+        camera.position.x += (0 - camera.position.x) * 0.02;
+        camera.position.y += (1.6 - camera.position.y) * 0.02;
+        camera.lookAt(0, 0.5, 0);
+        renderer.render(scene, camera);
+    }
+    animate();
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+</body>
+</html>
